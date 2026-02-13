@@ -1,0 +1,468 @@
+import React, { useState } from 'react';
+import { 
+  Smartphone, 
+  Brain, 
+  Shield, 
+  Church, 
+  Calendar, 
+  ChevronDown, 
+  ChevronUp, 
+  AlertTriangle, 
+  Heart, 
+  Users, 
+  Gamepad2, 
+  ShoppingBag, 
+  TrendingUp, 
+  Lock,
+  Menu,
+  X,
+  ArrowRight
+} from 'lucide-react';
+
+// --- Data & Content ---
+const addictions = [
+  {
+    title: "Social Media",
+    icon: <Smartphone className="w-6 h-6" />,
+    demo: "Gen Z & Millennials (Females 34% > Males 26%)",
+    stat: "82% of Gen Z adults acknowledge dependency.",
+    hook: "Comparison Culture & FOMO.",
+    impact: "Anxiety, depression, body image issues."
+  },
+  {
+    title: "Online Pornography",
+    icon: <Lock className="w-6 h-6" />,
+    demo: "Males (All Ages), rising in Gen Z Females (24%)",
+    stat: "A leading hidden struggle in churches.",
+    hook: "Novelty & Hyper-stimulation.",
+    impact: "Intimacy disorders, shame, secrecy."
+  },
+  {
+    title: "Video Gaming",
+    icon: <Gamepad2 className="w-6 h-6" />,
+    demo: "Adolescent Boys",
+    stat: "16% at risk; 6+ hours/day for addicted users.",
+    hook: "Achievement & Escapism.",
+    impact: "Academic decline, social isolation, aggression."
+  },
+  {
+    title: "Online Gambling",
+    icon: <TrendingUp className="w-6 h-6" />,
+    demo: "Men (21Ð35)",
+    stat: "Fastest growing due to sports betting apps.",
+    hook: "Variable Rewards (The 'Near Miss').",
+    impact: "Financial ruin, severe debt, lying."
+  },
+  {
+    title: "Compulsive Shopping",
+    icon: <ShoppingBag className="w-6 h-6" />,
+    demo: "Women (25Ð45)",
+    stat: "23% use it as primary stress-coping.",
+    hook: "Instant Gratification & 'Deals'.",
+    impact: "Hoarding, debt, buyer's remorse."
+  },
+  {
+    title: "Doomscrolling",
+    icon: <AlertTriangle className="w-6 h-6" />,
+    demo: "Gen X & Boomers",
+    stat: "48% use it to 'vent' or process anxiety.",
+    hook: "Outrage & Fear Loops.",
+    impact: "Chronic stress, political polarization, cynicism."
+  }
+];
+
+const resetTimeline = [
+  { week: "Week 1", title: "The Detox", desc: "Expect irritability and strong cravings (phantom vibrations). The brain is panicking without its dopamine hits.", color: "bg-red-100 border-red-300 text-red-800" },
+  { week: "Week 2", title: "Analog Anchors", desc: "Boredom sets in. This is good! Replace screens with 'slow' joys: walking, reading, puzzles.", color: "bg-orange-100 border-orange-300 text-orange-800" },
+  { week: "Week 3", title: "Mental Clarity", desc: "The fog lifts. Sleep improves, focus returns, and the 'noise' in the head quiets down.", color: "bg-blue-100 border-blue-300 text-blue-800" },
+  { week: "Week 4", title: "The New Normal", desc: "Reintroduction. Decide which apps stay deleted and which return with strict boundaries.", color: "bg-green-100 border-green-300 text-green-800" }
+];
+
+const parentingStages = [
+  { age: "Elementary (5-11)", role: "Protector", rule: "No Private Devices", desc: "Screens are shared family tools. Use in the living room only. Focus on sensory, physical play.", icon: <Shield className="w-5 h-5" /> },
+  { age: "Middle School (12-14)", role: "Trainer", rule: "Public Spaces Only", desc: "Introduce device with strict limits (no phones in bedrooms overnight). Teacher 'digital hygiene'.", icon: <Users className="w-5 h-5" /> },
+  { age: "High School (15-18)", role: "Mentor", rule: "Collaborative Limits", desc: "Teen helps set the rules. Goal is self-regulation before college. Focus on 'why', not just 'no'.", icon: <Brain className="w-5 h-5" /> }
+];
+
+// --- Components ---
+
+const SectionHeader = ({ title, subtitle, icon }) => (
+  <div className="mb-6 text-center">
+    <div className="inline-flex items-center justify-center p-3 bg-indigo-100 rounded-full text-indigo-700 mb-3">
+      {icon}
+    </div>
+    <h2 className="text-2xl md:text-3xl font-bold text-slate-800">{title}</h2>
+    <p className="text-slate-600 mt-2 max-w-2xl mx-auto">{subtitle}</p>
+  </div>
+);
+
+const Card = ({ children, className = "" }) => (
+  <div className={`bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden ${className}`}>
+    {children}
+  </div>
+);
+
+const AccordionItem = ({ title, children, icon, isOpen, onClick }) => (
+  <div className="border-b border-slate-100 last:border-0">
+    <button 
+      onClick={onClick}
+      className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors text-left"
+    >
+      <div className="flex items-center gap-3">
+        <div className="text-indigo-600">{icon}</div>
+        <span className="font-semibold text-slate-800">{title}</span>
+      </div>
+      {isOpen ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+    </button>
+    {isOpen && (
+      <div className="p-4 pt-0 bg-slate-50 text-slate-600 text-sm leading-relaxed">
+        {children}
+      </div>
+    )}
+  </div>
+);
+
+// --- Main App Component ---
+
+export default function GraceDigitalKit() {
+  const [activeTab, setActiveTab] = useState('addictions');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Accordion states
+  const [openAddiction, setOpenAddiction] = useState(null);
+
+  const toggleAddiction = (index) => {
+    setOpenAddiction(openAddiction === index ? null : index);
+  };
+
+  const tabs = [
+    { id: 'addictions', label: 'The 6 Traps', icon: <AlertTriangle className="w-4 h-4" /> },
+    { id: 'brain', label: 'The Brain Hook', icon: <Brain className="w-4 h-4" /> },
+    { id: 'parenting', label: 'Parenting Guide', icon: <Users className="w-4 h-4" /> },
+    { id: 'church', label: 'Church & Recovery', icon: <Church className="w-4 h-4" /> },
+    { id: 'lent', label: 'Lent 2026', icon: <Calendar className="w-4 h-4" /> },
+  ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'addictions':
+        return (
+          <div className="space-y-6 animate-fadeIn">
+            <SectionHeader 
+              title="The 6 Digital Traps" 
+              subtitle="The biggest online addictions affecting our families in 2026. Awareness is the first step to freedom."
+              icon={<AlertTriangle className="w-8 h-8" />}
+            />
+            <div className="grid md:grid-cols-2 gap-4">
+              {addictions.map((item, index) => (
+                <Card key={index} className="hover:shadow-md transition-shadow">
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                          {item.icon}
+                        </div>
+                        <h3 className="font-bold text-lg text-slate-800">{item.title}</h3>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-semibold text-slate-700">Who:</span> <span className="text-slate-600">{item.demo}</span></p>
+                      <p><span className="font-semibold text-slate-700">The Hook:</span> <span className="text-slate-600">{item.hook}</span></p>
+                      <p><span className="font-semibold text-slate-700">Impact:</span> <span className="text-slate-600">{item.impact}</span></p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-slate-100">
+                       <p className="text-xs font-medium text-indigo-600 bg-indigo-50 inline-block px-2 py-1 rounded">
+                         Stat: {item.stat}
+                       </p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'brain':
+        return (
+          <div className="space-y-8 animate-fadeIn">
+            <SectionHeader 
+              title="The Biological Hook" 
+              subtitle="It's not just a bad habit; it's chemistry. Understanding Dopamine is key to breaking the cycle."
+              icon={<Brain className="w-8 h-8" />}
+            />
+            
+            {/* The See-Saw Concept */}
+            <Card className="p-6 bg-gradient-to-br from-indigo-50 to-white">
+              <h3 className="text-xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" /> The Dopamine "See-Saw"
+              </h3>
+              <div className="flex flex-col md:flex-row gap-6 items-center">
+                <div className="flex-1 space-y-4 text-slate-700">
+                  <p>
+                    <strong className="text-indigo-700">1. The High:</strong> Every 'like' or notification tilts your brain toward pleasure.
+                  </p>
+                  <p>
+                    <strong className="text-indigo-700">2. The Crash:</strong> To balance, your brain tilts toward pain (boredom, anxiety) when you stop.
+                  </p>
+                  <p>
+                    <strong className="text-indigo-700">3. The Trap:</strong> Over time, you need the phone just to feel "normal," not even good.
+                  </p>
+                </div>
+                <div className="flex-1 w-full bg-white p-4 rounded-lg border border-indigo-100 flex items-center justify-center min-h-[200px]">
+                   {/* Abstract Visual of See-Saw */}
+                   <div className="relative w-full max-w-xs h-32">
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-800 rounded-full"></div>
+                      <div className="absolute bottom-2 left-0 right-0 h-2 bg-indigo-500 rounded-full transform -rotate-12 origin-center"></div>
+                      <div className="absolute top-4 left-0 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">Pain/Boredom</div>
+                      <div className="absolute bottom-0 right-0 text-xs font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded">Pleasure/Dopamine</div>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-xs text-slate-400 mt-8">
+                        The brain seeks homeostasis
+                      </div>
+                   </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* 30 Day Reset */}
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 mb-4">The 30-Day Reset Plan</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {resetTimeline.map((week, idx) => (
+                  <div key={idx} className={`p-4 rounded-xl border ${week.color}`}>
+                    <div className="font-bold text-lg mb-1">{week.week}</div>
+                    <div className="font-semibold mb-2 opacity-90">{week.title}</div>
+                    <p className="text-sm opacity-80">{week.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'parenting':
+        return (
+          <div className="space-y-8 animate-fadeIn">
+            <SectionHeader 
+              title="The Parent's Toolkit" 
+              subtitle="Don't fight a 'tech war.' Use an escalator approach: move from Manager to Mentor as they grow."
+              icon={<Shield className="w-8 h-8" />}
+            />
+
+            <div className="space-y-4">
+              {parentingStages.map((stage, idx) => (
+                <Card key={idx} className="flex flex-col md:flex-row overflow-hidden">
+                  <div className="md:w-32 bg-indigo-600 text-white flex flex-col items-center justify-center p-4 text-center">
+                    <div className="mb-2 p-2 bg-white/20 rounded-full">{stage.icon}</div>
+                    <span className="font-bold text-sm">{stage.role}</span>
+                  </div>
+                  <div className="p-6 flex-1">
+                    <h3 className="text-lg font-bold text-slate-800 mb-1">{stage.age}</h3>
+                    <p className="text-indigo-600 font-medium text-sm mb-3 uppercase tracking-wide">{stage.rule}</p>
+                    <p className="text-slate-600">{stage.desc}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="p-6 bg-slate-800 text-white mt-8">
+              <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                <Lock className="w-5 h-5 text-indigo-400" />
+                The "Kitchen Charging" Rule
+              </h3>
+              <p className="text-slate-300">
+                The #1 way to improve sleep and reduce secret usage: 
+                <strong> All devices charge in the kitchen (or neutral zone) overnight.</strong> 
+                This applies to parents too! Model the behavior.
+              </p>
+            </Card>
+          </div>
+        );
+
+      case 'church':
+        return (
+          <div className="space-y-8 animate-fadeIn">
+            <SectionHeader 
+              title="The Church Blueprint" 
+              subtitle="Moving from Secrecy to Safety. How Grace Community Church is responding."
+              icon={<Church className="w-8 h-8" />}
+            />
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="p-6 border-l-4 border-indigo-500">
+                <h3 className="font-bold text-lg text-slate-800 mb-3">The Problem: Secrecy</h3>
+                <ul className="space-y-3 text-slate-600">
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-500 mt-1">?</span>
+                    <span><strong>Shame Cycle:</strong> "If they knew, they wouldn't love me."</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-500 mt-1">?</span>
+                    <span><strong>Isolation:</strong> Withdrawing from community to hide the habit.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-500 mt-1">?</span>
+                    <span><strong>Digital Idolatry:</strong> Turning to phones for comfort instead of God.</span>
+                  </li>
+                </ul>
+              </Card>
+
+              <Card className="p-6 border-l-4 border-green-500">
+                <h3 className="font-bold text-lg text-slate-800 mb-3">The Solution: Grace</h3>
+                <ul className="space-y-3 text-slate-600">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500 mt-1">?</span>
+                    <span><strong>Vulnerability:</strong> Leaders sharing their own struggles.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500 mt-1">?</span>
+                    <span><strong>Safe Groups:</strong> Confidential "No Judgment Zones."</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500 mt-1">?</span>
+                    <span><strong>Holistic View:</strong> Treating it as a biological & spiritual battle.</span>
+                  </li>
+                </ul>
+              </Card>
+            </div>
+
+            <div className="bg-indigo-50 p-6 rounded-xl text-center">
+              <h3 className="font-bold text-indigo-900 mb-2">Start a Group</h3>
+              <p className="text-indigo-700 mb-4 max-w-lg mx-auto">
+                "We trade secrecy for safety." Interested in leading or joining a Digital Recovery Group?
+              </p>
+              <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                Contact Ministry Leader
+              </button>
+            </div>
+          </div>
+        );
+      
+      case 'lent':
+        return (
+          <div className="space-y-8 animate-fadeIn">
+            <SectionHeader 
+              title="Lent 2026 Challenge" 
+              subtitle="February 18 - April 2. A 40-Day collective journey to 'Trade the Scroll for the Soul'."
+              icon={<Calendar className="w-8 h-8" />}
+            />
+
+            <div className="relative">
+              <div className="absolute inset-0 bg-indigo-600 opacity-5 rounded-xl"></div>
+              <div className="relative p-6 md:p-10 text-center space-y-6">
+                <h3 className="text-2xl font-bold text-indigo-900">The 40-Day Fast</h3>
+                <p className="text-lg text-slate-700 max-w-2xl mx-auto">
+                  Join the entire Grace Community Church family in intentionally stepping back from digital noise to hear the "still small voice."
+                </p>
+                
+                <div className="grid md:grid-cols-3 gap-4 text-left max-w-4xl mx-auto mt-8">
+                  <div className="bg-white p-5 rounded-lg shadow-sm">
+                    <div className="text-indigo-500 font-bold mb-2">Focus 1: Silence</div>
+                    <p className="text-sm text-slate-600">Replacing podcasts and music with silence during commutes to practice presence.</p>
+                  </div>
+                  <div className="bg-white p-5 rounded-lg shadow-sm">
+                    <div className="text-indigo-500 font-bold mb-2">Focus 2: Connection</div>
+                    <p className="text-sm text-slate-600">Phone-free meals. Eye contact. Deep listening without looking at a watch or screen.</p>
+                  </div>
+                  <div className="bg-white p-5 rounded-lg shadow-sm">
+                    <div className="text-indigo-500 font-bold mb-2">Focus 3: Scripture</div>
+                    <p className="text-sm text-slate-600">First 15 minutes of the day in the Word, before opening any email or social app.</p>
+                  </div>
+                </div>
+
+                <button className="mt-8 bg-slate-900 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-800 transition-colors flex items-center gap-2 mx-auto">
+                  Download the Lenten Calendar <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* Navigation Bar */}
+      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">G</div>
+              <span className="font-bold text-lg tracking-tight">Grace Digital Health</span>
+            </div>
+
+            {/* Desktop Nav */}
+            <div className="hidden md:flex space-x-1">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                    activeTab === tab.id 
+                      ? 'bg-indigo-50 text-indigo-700' 
+                      : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              className="md:hidden p-2 text-slate-600"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Nav Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-100 bg-white">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-3 rounded-md text-base font-medium flex items-center gap-3 ${
+                    activeTab === tab.id 
+                      ? 'bg-indigo-50 text-indigo-700' 
+                      : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Main Content Area */}
+      <main className="max-w-4xl mx-auto px-4 py-8 md:py-12">
+        {renderContent()}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-12 mt-12">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <Heart className="w-8 h-8 mx-auto text-indigo-500 mb-4" />
+          <h3 className="text-white font-bold text-lg mb-2">Grace Community Church</h3>
+          <p className="mb-6">Helping you navigate the digital world with wisdom and grace.</p>
+          <div className="text-sm text-slate-500">
+            © 2026 Grace Community Church. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
